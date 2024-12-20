@@ -18,7 +18,7 @@ import static com.artillexstudios.axgraves.AxGraves.CONFIG;
 
 public class DeathListener implements Listener {
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onDeath(@NotNull PlayerDeathEvent event) {
         if (CONFIG.getStringList("disabled-worlds") != null && CONFIG.getStringList("disabled-worlds").contains(event.getEntity().getWorld().getName())) return;
         if (!CONFIG.getBoolean("override-keep-inventory", true) && event.getKeepInventory()) return;
