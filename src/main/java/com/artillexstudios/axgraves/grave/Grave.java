@@ -93,6 +93,8 @@ public class Grave {
 
         int itemsAm = countItems();
 
+        SpawnedGraves.addGrave(this);
+
         int time = CONFIG.getInt("despawn-time-seconds", 180);
         boolean outOfTime = time * 1_000L <= (System.currentTimeMillis() - spawned);
         boolean despawn = CONFIG.getBoolean("despawn-when-empty", true);

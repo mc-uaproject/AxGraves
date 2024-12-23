@@ -3,7 +3,6 @@ package com.artillexstudios.axgraves.listeners;
 import com.artillexstudios.axgraves.api.events.GravePreSpawnEvent;
 import com.artillexstudios.axgraves.api.events.GraveSpawnEvent;
 import com.artillexstudios.axgraves.grave.Grave;
-import com.artillexstudios.axgraves.grave.SpawnedGraves;
 import com.artillexstudios.axgraves.utils.ExperienceUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -54,8 +53,6 @@ public class DeathListener implements Listener {
         if (CONFIG.getBoolean("store-xp", true))
             event.setDroppedExp(0);
         event.getDrops().clear();
-
-        SpawnedGraves.addGrave(grave);
 
         final GraveSpawnEvent graveSpawnEvent = new GraveSpawnEvent(player, grave);
         Bukkit.getPluginManager().callEvent(graveSpawnEvent);
