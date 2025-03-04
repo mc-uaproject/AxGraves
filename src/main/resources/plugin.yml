@@ -21,3 +21,7 @@ permissions:
     default: true
   axgraves.limit.1:
     default: false
+  axgraves.trust:
+    default: true
+  axgraves.untrust:
+    default: true

@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public final class AxGraves extends AxPlugin {
     private static AxPlugin instance;
     public static Config CONFIG;
+    public static Config TRUSTED;
     public static Config MESSAGES;
     public static MessageUtils MESSAGEUTILS;
     public static ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
@@ -43,6 +44,7 @@ public final class AxGraves extends AxPlugin {
 
         CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("version")).build());
         MESSAGES = new Config(new File(getDataFolder(), "messages.yml"), getResource("messages.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("version")).build());
+        TRUSTED = new Config(new File(getDataFolder(), "trusted.yml"), null, GeneralSettings.builder().setUseDefaults(true).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("version")).build());
 
         MESSAGEUTILS = new MessageUtils(MESSAGES.getBackingDocument(), "prefix", CONFIG.getBackingDocument());
 
