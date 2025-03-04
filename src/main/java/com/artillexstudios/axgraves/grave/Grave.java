@@ -11,6 +11,7 @@ import com.artillexstudios.axapi.serializers.Serializers;
 import com.artillexstudios.axapi.utils.EquipmentSlot;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.placeholder.Placeholder;
+import com.artillexstudios.axgraves.AxGraves;
 import com.artillexstudios.axgraves.api.events.GraveInteractEvent;
 import com.artillexstudios.axgraves.api.events.GraveOpenEvent;
 import com.artillexstudios.axgraves.utils.BlacklistUtils;
@@ -145,8 +146,11 @@ public class Grave {
 
     public void interact(@NotNull Player opener, org.bukkit.inventory.EquipmentSlot slot) {
         if (CONFIG.getBoolean("interact-only-own", false) && !opener.getUniqueId().equals(player.getUniqueId()) && !opener.hasPermission("axgraves.admin")) {
-            MESSAGEUTILS.sendLang(opener, "interact.not-your-grave");
-            return;
+            List<String> trustedPlayers = AxGraves.TRUSTED.getStringList("trusted." + player.getUniqueId());
+            if (!trustedPlayers.contains(opener.getUniqueId().toString())) {
+                MESSAGEUTILS.sendLang(opener, "trust.not-trusted");
+                return;
+            }
         }
 
         final GraveInteractEvent graveInteractEvent = new GraveInteractEvent(opener, this);
