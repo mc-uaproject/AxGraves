@@ -2,11 +2,12 @@ package com.artillexstudios.axgraves;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.config.Config;
-import com.artillexstudios.axapi.libs.boostedyaml.boostedyaml.dvs.versioning.BasicVersioning;
-import com.artillexstudios.axapi.libs.boostedyaml.boostedyaml.settings.dumper.DumperSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.boostedyaml.settings.general.GeneralSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.boostedyaml.settings.loader.LoaderSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.boostedyaml.settings.updater.UpdaterSettings;
+import com.artillexstudios.axapi.libs.boostedyaml.dvs.versioning.BasicVersioning;
+import com.artillexstudios.axapi.libs.boostedyaml.settings.dumper.DumperSettings;
+import com.artillexstudios.axapi.libs.boostedyaml.settings.general.GeneralSettings;
+import com.artillexstudios.axapi.libs.boostedyaml.settings.loader.LoaderSettings;
+import com.artillexstudios.axapi.libs.boostedyaml.settings.updater.UpdaterSettings;
+import com.artillexstudios.axapi.metrics.AxMetrics;
 import com.artillexstudios.axapi.utils.MessageUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axgraves.commands.Commands;
@@ -31,6 +32,7 @@ public final class AxGraves extends AxPlugin {
     public static Config MESSAGES;
     public static MessageUtils MESSAGEUTILS;
     public static ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
+    private static AxMetrics metrics;
 
     public static AxPlugin getInstance() {
         return instance;
@@ -39,8 +41,7 @@ public final class AxGraves extends AxPlugin {
     public void enable() {
         instance = this;
 
-        int pluginId = 20332;
-        new Metrics(this, pluginId);
+        new Metrics(this, 20332);
 
         CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("version")).build());
         MESSAGES = new Config(new File(getDataFolder(), "messages.yml"), getResource("messages.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("version")).build());
@@ -60,27 +61,29 @@ public final class AxGraves extends AxPlugin {
         TickGraves.start();
         SaveGraves.start();
 
+        metrics = new AxMetrics(this, 20);
+        metrics.start();
+
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier(this, 5076);
     }
 
     public void disable() {
+        if (metrics != null) metrics.cancel();
+
         TickGraves.stop();
         SaveGraves.stop();
 
         for (Grave grave : SpawnedGraves.getGraves()) {
-            if (!CONFIG.getBoolean("save-graves.enabled", true))
-                grave.remove();
-
-            if (grave.getEntity() != null)
-                grave.getEntity().remove();
-            if (grave.getHologram() != null)
-                grave.getHologram().remove();
+            if (!CONFIG.getBoolean("save-graves.enabled", true)) grave.remove();
+            if (grave.getEntity() != null) grave.getEntity().remove();
+            if (grave.getHologram() != null) grave.getHologram().remove();
         }
 
-        if (CONFIG.getBoolean("save-graves.enabled", true))
+        if (CONFIG.getBoolean("save-graves.enabled", true)) {
             SpawnedGraves.saveToFile();
+        }
 
-        EXECUTOR.shutdown();
+        EXECUTOR.shutdownNow();
     }
 
     public void updateFlags(FeatureFlags flags) {

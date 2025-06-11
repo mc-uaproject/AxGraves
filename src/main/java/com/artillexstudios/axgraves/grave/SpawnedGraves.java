@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -62,7 +63,7 @@ public class SpawnedGraves {
             final JsonObject obj = new JsonObject();
             obj.addProperty("location", Serializers.LOCATION.serialize(grave.getLocation()));
             obj.addProperty("owner", grave.getPlayer().getUniqueId().toString());
-            obj.addProperty("items", Base64.getEncoder().encodeToString(Serializers.ITEM_ARRAY.serialize(grave.getGui().getInventory().getContents())));
+            obj.addProperty("items", Base64.getEncoder().encodeToString(Serializers.ITEM_ARRAY.serialize(grave.getGui().getContents())));
             obj.addProperty("xp", grave.getStoredXP());
             obj.addProperty("date", grave.getSpawned());
 
@@ -98,7 +99,7 @@ public class SpawnedGraves {
                 ItemStack[] items = Serializers.ITEM_ARRAY.deserialize(Base64.getDecoder().decode(itStr));
                 int xp = obj.get("xp").getAsInt();
                 long date = obj.get("date").getAsLong();
-                addGrave(new Grave(location, owner, items, xp, date));
+                addGrave(new Grave(location, owner, Arrays.asList(items), xp, date));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
